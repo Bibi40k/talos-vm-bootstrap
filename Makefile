@@ -84,21 +84,7 @@ help:
 	@printf "\n$(CYAN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(RESET)\n\n"
 
 check-go:
-	@{ \
-		LOCAL_VER=$$(GOTOOLCHAIN=local go env GOVERSION 2>/dev/null | sed 's/^go//' || echo "unknown"); \
-		REQUIRED="$(GO_REQUIRED)"; \
-		if [ "$$LOCAL_VER" = "unknown" ]; then \
-			printf "$(YELLOW)Go not found in PATH (local toolchain).$(RESET)\n"; \
-			printf "  Run: $(GREEN)make install-requirements$(RESET)\n\n"; \
-			exit 1; \
-		fi; \
-		LOWEST=$$(printf '%s\n%s\n' "$$REQUIRED" "$$LOCAL_VER" | sort -V | head -n1); \
-		if [ "$$LOWEST" != "$$REQUIRED" ]; then \
-			printf "$(YELLOW)Local Go toolchain too old (local: $$LOCAL_VER, required: $$REQUIRED).$(RESET)\n"; \
-			printf "  Run: $(GREEN)make install-requirements$(RESET)\n\n"; \
-			exit 1; \
-		fi; \
-	}
+	@go run ./tools/buildctl preflight --required-go "$(GO_REQUIRED)"
 
 build: check-go
 	@printf "$(CYAN)Compiling all packages...$(RESET)\n"
@@ -266,11 +252,7 @@ vm-deploy: build-cli
 run: vm-deploy
 
 talos-bootstrap: build-cli
-	@if [ ! -f "$(CONFIG)" ]; then \
-		printf "\n  $(YELLOW)No Talos bootstrap config found: $(CONFIG)$(RESET)\n"; \
-		printf "  Run: $(GREEN)make config$(RESET) → Create missing config files\n\n"; \
-		exit 1; \
-	fi
+	@go run ./tools/buildctl require-config --path "$(CONFIG)"
 	@DRY_FLAG=""; \
 	if [ "$(DRY)" = "1" ]; then DRY_FLAG="--dry-run"; fi; \
 	bin/talos-vm-bootstrap bootstrap --config "$(CONFIG)" $$DRY_FLAG
@@ -278,11 +260,7 @@ talos-bootstrap: build-cli
 run-dry: talos-bootstrap-dry
 
 run-workflow: build-cli
-	@if [ ! -f "$(CONFIG)" ]; then \
-		printf "\n  $(YELLOW)Missing Talos bootstrap config: $(CONFIG)$(RESET)\n"; \
-		printf "  Run: $(GREEN)make config$(RESET)\n\n"; \
-		exit 1; \
-	fi; \
+	@go run ./tools/buildctl require-config --path "$(CONFIG)"; \
 	VM_CONFIG_FLAG=""; \
 	if [ -n "$(VM_CONFIG)" ]; then VM_CONFIG_FLAG="--vm-config $(VM_CONFIG)"; fi; \
 	BOOTSTRAP_FLAG=""; \
@@ -294,30 +272,14 @@ run-workflow: build-cli
 		--vmbootstrap-update-notify="$(VMBOOTSTRAP_UPDATE_NOTIFY)"
 
 cluster-status: build-cli
-	@if [ ! -f "$(CONFIG)" ]; then \
-		printf "\n  $(YELLOW)Missing Talos bootstrap config: $(CONFIG)$(RESET)\n"; \
-		printf "  Run: $(GREEN)make config$(RESET)\n\n"; \
-		exit 1; \
-	fi
+	@go run ./tools/buildctl require-config --path "$(CONFIG)"
 	@bin/talos-vm-bootstrap cluster-status --config "$(CONFIG)"
 
 mount-check: build-cli
-	@if [ ! -f "$(CONFIG)" ]; then \
-		printf "\n  $(YELLOW)Missing Talos bootstrap config: $(CONFIG)$(RESET)\n"; \
-		printf "  Run: $(GREEN)make config$(RESET)\n\n"; \
-		exit 1; \
-	fi
+	@go run ./tools/buildctl require-config --path "$(CONFIG)"
 	@bin/talos-vm-bootstrap mount-check --config "$(CONFIG)"
 
 kubeconfig-export: build-cli
-	@if [ ! -f "$(CONFIG)" ]; then \
-		printf "\n  $(YELLOW)Missing Talos bootstrap config: $(CONFIG)$(RESET)\n"; \
-		printf "  Run: $(GREEN)make config$(RESET)\n\n"; \
-		exit 1; \
-	fi; \
-	if [ -z "$(OUT)" ]; then \
-		printf "\n  $(YELLOW)Missing OUT for kubeconfig export$(RESET)\n"; \
-		printf "  Example: $(GREEN)make kubeconfig-export OUT=build/devvm/kubeconfig$(RESET)\n\n"; \
-		exit 1; \
-	fi
+	@go run ./tools/buildctl require-config --path "$(CONFIG)"
+	@go run ./tools/buildctl require-out --out "$(OUT)"
 	@bin/talos-vm-bootstrap kubeconfig-export --config "$(CONFIG)" --out "$(OUT)"
