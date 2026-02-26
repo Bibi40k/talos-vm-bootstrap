@@ -1,7 +1,8 @@
 # talos-vm-bootstrap
 
 ![CI](https://github.com/Bibi40k/talos-vm-bootstrap/actions/workflows/ci.yml/badge.svg)
-![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Bibi40k/talos-vm-bootstrap/master/docs/coverage/coverage.json)
+![Coverage Core](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Bibi40k/talos-vm-bootstrap/master/docs/coverage/coverage-core.json)
+![Coverage All](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Bibi40k/talos-vm-bootstrap/master/docs/coverage/coverage-all.json)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Bibi40k/talos-vm-bootstrap)](https://goreportcard.com/report/github.com/Bibi40k/talos-vm-bootstrap)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/Bibi40k/talos-vm-bootstrap)
 ![Release](https://img.shields.io/github/v/release/Bibi40k/talos-vm-bootstrap)
@@ -61,4 +62,5 @@ talos-vm-bootstrap provision-and-bootstrap --config configs/talos-bootstrap.yaml
 - `golangci-lint`
 - `make test-cover` (core logic coverage report for `internal/bootstrap`, `internal/config`, `internal/workflow`)
 
-Coverage badge reflects **full project coverage** (including CLI). Core coverage report helps track production logic trends over time.
+`Coverage Core` tracks production packages (`internal/bootstrap`, `internal/config`, `internal/workflow`).
+`Coverage All` tracks total project coverage (including CLI and integration layers).
