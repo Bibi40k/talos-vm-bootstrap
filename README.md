@@ -3,7 +3,7 @@
 ![CI](https://github.com/Bibi40k/talos-vm-bootstrap/actions/workflows/ci.yml/badge.svg)
 ![Coverage Core](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Bibi40k/talos-vm-bootstrap/master/docs/coverage/coverage-core.json)
 ![Coverage All](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Bibi40k/talos-vm-bootstrap/master/docs/coverage/coverage-all.json)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Bibi40k/talos-vm-bootstrap)](https://goreportcard.com/report/github.com/Bibi40k/talos-vm-bootstrap)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bibi40k/talos-vm-bootstrap)](https://goreportcard.com/report/github.com/bibi40k/talos-vm-bootstrap)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/Bibi40k/talos-vm-bootstrap)
 ![Release](https://img.shields.io/github/v/release/Bibi40k/talos-vm-bootstrap)
 
