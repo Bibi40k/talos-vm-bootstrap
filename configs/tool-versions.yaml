@@ -1,0 +1,9 @@
+docker:
+  latest_version: "28.5.2"
+  latest_release_date: "2025-11-05"
+
+talosctl:
+  latest_version: "1.12.4"
+  latest_release_date: "2026-02-13"
+  checksums_linux_amd64:
+    "1.12.4": "6b85f633721e02d31c8a28a633c9cd8ebfb7e41677ff29e94236a082d4cd6cd9"

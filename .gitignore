@@ -1,0 +1,20 @@
+/.codex/
+/bin/
+/build/
+/dist/
+/tmp/
+.coverage
+coverage.out
+
+# ISO cache
+*.iso
+/cache/
+
+# Local config files (personal - copy from .example and fill in your values)
+.sops.yaml
+.sopsrc
+*.sops.yaml
+configs/talos-bootstrap.yaml
+
+# SOPS decrypted files
+.decrypted~*

@@ -1,0 +1,40 @@
+vm:
+  host: "192.168.1.10"
+  port: 22
+  user: "sysadmin"
+  ssh_private_key: "~/.ssh/id_ed25519"
+  known_hosts_file: "~/.ssh/known_hosts"
+  # strict | prompt | accept-new | auto-refresh
+  known_hosts_mode: strict
+  # Optional: set to enforce host key pinning (ex: from vmbootstrap bootstrap result).
+  ssh_host_fingerprint: ""
+
+hardening:
+  enabled: true
+  allow_password_ssh: false
+  enable_ufw: true
+  allow_tcp_ports:
+    - 22
+
+docker:
+  # Latest known stable (source: configs/tool-versions.yaml).
+  version: "28.5.2"
+
+talos:
+  # Latest known stable patch in 1.12 line (source: configs/tool-versions.yaml).
+  version: "1.12.4"
+  # Replace with official checksum for talosctl-linux-<arch> from the selected release.
+  # (arch resolves on the VM via dpkg --print-architecture)
+  sha256_checksum: "0000000000000000000000000000000000000000000000000000000000000000"
+
+cluster:
+  name: "devvm"
+  state_dir: "~/.talos/clusters/devvm"
+  mount_src: "~/work"
+  mount_dst: /var/mnt/work
+
+timeouts:
+  ssh_connect_seconds: 5
+  ssh_retries: 12
+  ssh_retry_delay_seconds: 10
+  total_minutes: 30
