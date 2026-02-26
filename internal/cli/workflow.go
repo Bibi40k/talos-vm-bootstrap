@@ -81,13 +81,13 @@ func newProvisionAndBootstrapCmd() *cobra.Command {
 						logger.Info("bootstrap fingerprint refreshed", "path", bootstrapPath)
 					}
 				}
-				// After identity stabilization, enforce strict verification for Stage 2.
+				// After identity stabilization, enforce strict verification for Talos bootstrap.
 				if !strings.EqualFold(strings.TrimSpace(stage2Cfg.VM.KnownHostsMode), "strict") {
 					stage2Cfg.VM.KnownHostsMode = "strict"
 					if human {
-						logger.Debug("known_hosts mode set to strict for stage2 after fingerprint stabilization")
+						logger.Debug("known_hosts mode set to strict for talos bootstrap after fingerprint stabilization")
 					} else {
-						logger.Info("known_hosts mode set to strict for stage2 after fingerprint stabilization")
+						logger.Info("known_hosts mode set to strict for talos bootstrap after fingerprint stabilization")
 					}
 				}
 			}
@@ -96,7 +96,7 @@ func newProvisionAndBootstrapCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), stage2Cfg.Timeouts.TotalDuration())
 			defer cancel()
 
-			progress.start("talos-bootstrap", "Run Stage 2 bootstrap on target VM")
+			progress.start("talos-bootstrap", "Run Talos bootstrap on target VM")
 			res, err := workflow.ProvisionAndBootstrap(ctx, logger, stage2Cfg, bootstrapResult, workflow.ProvisionAndBootstrapOptions{
 				DryRun:        dryRun,
 				HumanProgress: human,
@@ -107,7 +107,7 @@ func newProvisionAndBootstrapCmd() *cobra.Command {
 				}
 				return err
 			}
-			progress.done("stage2 completed")
+			progress.done("talos bootstrap completed")
 
 			if jsonOut {
 				return printJSON(res)

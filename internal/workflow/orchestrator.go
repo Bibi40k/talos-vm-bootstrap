@@ -36,7 +36,7 @@ func ProvisionAndBootstrap(
 		return bootstrap.Result{}, err
 	}
 
-	logger.Info("workflow merged bootstrap result into stage2",
+	logger.Info("workflow merged bootstrap result into talos config",
 		"vm_name", bootstrapResult.VMName,
 		"ip", bootstrapResult.IPAddress,
 		"ssh_user", bootstrapResult.SSHUser,

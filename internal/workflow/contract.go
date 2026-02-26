@@ -30,7 +30,7 @@ func MergeBootstrapIntoStage2(base config.Config, bootstrap BootstrapResult) (co
 	}
 
 	if err := merged.Validate(); err != nil {
-		return config.Config{}, fmt.Errorf("merged stage2 config invalid: %w", err)
+		return config.Config{}, fmt.Errorf("merged talos config invalid: %w", err)
 	}
 	return merged, nil
 }
