@@ -11,7 +11,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fail("usage: buildctl <preflight|require-config|require-out> [flags]")
+		fail("usage: buildctl <preflight|require-config|require-out|coverage-badges> [flags]")
 	}
 
 	switch os.Args[1] {
@@ -21,6 +21,8 @@ func main() {
 		runRequireConfig(os.Args[2:])
 	case "require-out":
 		runRequireOut(os.Args[2:])
+	case "coverage-badges":
+		runCoverageBadges(os.Args[2:])
 	default:
 		fail("unknown command: " + os.Args[1])
 	}
@@ -49,6 +51,15 @@ func runRequireOut(args []string) {
 	out := fs.String("out", "", "OUT target path")
 	_ = fs.Parse(args)
 	if err := buildctl.RequireOut(strings.TrimSpace(*out)); err != nil {
+		fail(err.Error())
+	}
+}
+
+func runCoverageBadges(args []string) {
+	fs := flag.NewFlagSet("coverage-badges", flag.ExitOnError)
+	repoRoot := fs.String("repo-root", ".", "repository root path")
+	_ = fs.Parse(args)
+	if err := buildctl.GenerateCoverageBadges(strings.TrimSpace(*repoRoot)); err != nil {
 		fail(err.Error())
 	}
 }

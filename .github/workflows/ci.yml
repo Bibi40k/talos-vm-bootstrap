@@ -64,33 +64,7 @@ jobs:
           go-version-file: go.mod
       - name: Generate coverage
         run: |
-          mkdir -p tmp docs/coverage
-          # Full project coverage (includes CLI/integration layers).
-          ALL_PKGS=$(go list ./... | grep -v '/tools')
-          go test -coverprofile=tmp/coverage.all.out $ALL_PKGS
-          all_total=$(go tool cover -func=tmp/coverage.all.out | tail -1 | awk '{print $3}')
-          all_pct=${all_total%%%}
-          all_color=red
-          awk "BEGIN {exit !($all_pct >= 80)}" && all_color=green
-          awk "BEGIN {exit !($all_pct >= 60 && $all_pct < 80)}" && all_color=yellow
-          cat > docs/coverage/coverage-all.json <<EOF
-          {"schemaVersion":1,"label":"coverage-all","message":"${all_total}","color":"${all_color}"}
-          EOF
-
-          # Core production coverage (bootstrap/config/workflow packages).
-          CORE_PKGS="./internal/bootstrap ./internal/config ./internal/workflow"
-          go test -coverprofile=tmp/coverage.core.out $CORE_PKGS
-          core_total=$(go tool cover -func=tmp/coverage.core.out | tail -1 | awk '{print $3}')
-          core_pct=${core_total%%%}
-          core_color=red
-          awk "BEGIN {exit !($core_pct >= 80)}" && core_color=green
-          awk "BEGIN {exit !($core_pct >= 60 && $core_pct < 80)}" && core_color=yellow
-          cat > docs/coverage/coverage-core.json <<EOF
-          {"schemaVersion":1,"label":"coverage-core","message":"${core_total}","color":"${core_color}"}
-          EOF
-
-          # Backward-compatible alias: keep legacy file pointing to full coverage.
-          cp docs/coverage/coverage-all.json docs/coverage/coverage.json
+          go run ./tools/buildctl coverage-badges --repo-root .
       - name: Commit coverage badge
         run: |
           if git diff --quiet -- docs/coverage/coverage.json docs/coverage/coverage-all.json docs/coverage/coverage-core.json; then
