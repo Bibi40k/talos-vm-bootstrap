@@ -8,6 +8,16 @@ Highlights:
 Notes:
 - TBD
 
+## v0.1.1 (2026-03-01)
+
+Highlights:
+- Config manager draft lifecycle now uses `cli-wizard-core` session primitives for consistent behavior across repositories.
+- Stage2 draft handling was simplified and aligned with shared wizard semantics.
+
+Notes:
+- Replaces custom ad-hoc draft flow in `internal/cli/config_manager.go` with `wizard.Session` integration.
+- Improves reuse and keeps future wizard behavior changes centralized in `cli-wizard-core`.
+
 ## v0.1.0 (2026-02-26)
 
 Highlights:
