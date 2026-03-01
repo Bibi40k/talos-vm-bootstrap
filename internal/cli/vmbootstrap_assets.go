@@ -16,6 +16,7 @@ func warnPinnedAssetDrift() {
 	for _, item := range drift {
 		_, _ = fmt.Fprintf(os.Stdout, "  - %s\n", item)
 	}
-	_, _ = fmt.Fprintln(os.Stdout, "  Run: make vmbootstrap-sync-assets FORCE=1")
+	_, _ = fmt.Fprintln(os.Stdout, "  Run: make vmbootstrap-sync-assets")
+	_, _ = fmt.Fprintln(os.Stdout, "  Use FORCE=1 only when you intentionally want full overwrite.")
 	_, _ = fmt.Fprintln(os.Stdout)
 }

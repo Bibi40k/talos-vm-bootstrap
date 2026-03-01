@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
 func TestResolveBinaryFromAbsolutePath(t *testing.T) {
@@ -75,6 +77,96 @@ func TestSyncOneFileMissingSource(t *testing.T) {
 	err := syncOneFile(filepath.Join(dir, "missing"), filepath.Join(dir, "dst"), false)
 	if err == nil || !strings.Contains(err.Error(), "read source asset") {
 		t.Fatalf("expected source read error, got %v", err)
+	}
+}
+
+func TestSyncDefaultsFileMergesMissingKeysWithoutForce(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "src-defaults.yaml")
+	dst := filepath.Join(dir, "dst-defaults.yaml")
+
+	srcYAML := "" +
+		"network:\n" +
+		"  interface: ens192\n" +
+		"talos:\n" +
+		"  default_version: v1.12.4\n" +
+		"  plan_network:\n" +
+		"    cidr: 192.168.110.0/24\n" +
+		"    gateway: 192.168.110.1\n"
+	dstYAML := "" +
+		"network:\n" +
+		"  interface: eth0\n" +
+		"talos:\n" +
+		"  default_version: v1.11.0\n" +
+		"  plan_network:\n" +
+		"    cidr: 192.168.115.0/24\n"
+
+	if err := os.WriteFile(src, []byte(srcYAML), 0o644); err != nil {
+		t.Fatalf("write src: %v", err)
+	}
+	if err := os.WriteFile(dst, []byte(dstYAML), 0o644); err != nil {
+		t.Fatalf("write dst: %v", err)
+	}
+
+	if err := syncDefaultsFile(src, dst, false); err != nil {
+		t.Fatalf("syncDefaultsFile failed: %v", err)
+	}
+
+	got, err := os.ReadFile(dst)
+	if err != nil {
+		t.Fatalf("read dst: %v", err)
+	}
+
+	var merged map[string]any
+	if err := yaml.Unmarshal(got, &merged); err != nil {
+		t.Fatalf("unmarshal merged yaml: %v", err)
+	}
+
+	if network := merged["network"].(map[string]any); network["interface"] != "eth0" {
+		t.Fatalf("expected local network.interface preserved, got %v", network["interface"])
+	}
+	talos := merged["talos"].(map[string]any)
+	if talos["default_version"] != "v1.11.0" {
+		t.Fatalf("expected local talos.default_version preserved, got %v", talos["default_version"])
+	}
+	planNet := talos["plan_network"].(map[string]any)
+	if planNet["cidr"] != "192.168.115.0/24" {
+		t.Fatalf("expected local talos.plan_network.cidr preserved, got %v", planNet["cidr"])
+	}
+	if planNet["gateway"] != "192.168.110.1" {
+		t.Fatalf("expected missing key talos.plan_network.gateway added, got %v", planNet["gateway"])
+	}
+}
+
+func TestSyncDefaultsFileNoMissingKeysDoesNotOverwriteWithoutForce(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "src-defaults.yaml")
+	dst := filepath.Join(dir, "dst-defaults.yaml")
+
+	srcYAML := "" +
+		"network:\n" +
+		"  interface: ens192\n"
+	dstYAML := "" +
+		"network:\n" +
+		"  interface: eth0\n"
+
+	if err := os.WriteFile(src, []byte(srcYAML), 0o644); err != nil {
+		t.Fatalf("write src: %v", err)
+	}
+	if err := os.WriteFile(dst, []byte(dstYAML), 0o644); err != nil {
+		t.Fatalf("write dst: %v", err)
+	}
+
+	if err := syncDefaultsFile(src, dst, false); err != nil {
+		t.Fatalf("syncDefaultsFile failed: %v", err)
+	}
+
+	got, err := os.ReadFile(dst)
+	if err != nil {
+		t.Fatalf("read dst: %v", err)
+	}
+	if string(got) != dstYAML {
+		t.Fatalf("expected dst to remain unchanged without force")
 	}
 }
 

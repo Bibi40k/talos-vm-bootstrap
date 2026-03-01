@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 // ResolveOptions controls vmbootstrap binary resolution behavior.
@@ -203,12 +205,19 @@ func SyncPinnedAssets(repoRoot string, force bool) ([]string, error) {
 	for _, rel := range syncedAssets {
 		src := filepath.Join(moduleDir, rel)
 		dst := filepath.Join(rootAbs, rel)
-		if err := syncOneFile(src, dst, force); err != nil {
+		if err := syncOneAsset(rel, src, dst, force); err != nil {
 			return nil, err
 		}
 		results = append(results, rel)
 	}
 	return results, nil
+}
+
+func syncOneAsset(rel, src, dst string, force bool) error {
+	if rel == "configs/defaults.yaml" {
+		return syncDefaultsFile(src, dst, force)
+	}
+	return syncOneFile(src, dst, force)
 }
 
 func moduleSourceDir() (string, error) {
@@ -260,6 +269,104 @@ func syncOneFile(src, dst string, force bool) error {
 		return fmt.Errorf("write destination asset %s: %w", dst, err)
 	}
 	return nil
+}
+
+func syncDefaultsFile(src, dst string, force bool) error {
+	srcData, err := os.ReadFile(src)
+	if err != nil {
+		return fmt.Errorf("read source asset %s: %w", src, err)
+	}
+
+	dstData, readErr := os.ReadFile(dst)
+	if readErr == nil {
+		if bytes.Equal(dstData, srcData) {
+			return nil
+		}
+		if !force {
+			merged, changed, err := mergeMissingYAMLKeys(srcData, dstData)
+			if err == nil {
+				if !changed {
+					// Keep local customizations even if values differ from upstream.
+					return nil
+				}
+				return writeAssetFile(src, dst, merged)
+			}
+		}
+	} else if !errors.Is(readErr, os.ErrNotExist) {
+		return fmt.Errorf("read destination asset %s: %w", dst, readErr)
+	}
+
+	if readErr == nil && !force {
+		return fmt.Errorf("local asset differs: %s (run with FORCE=1 to overwrite)", dst)
+	}
+	return writeAssetFile(src, dst, srcData)
+}
+
+func writeAssetFile(src, dst string, data []byte) error {
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+		return fmt.Errorf("create dir for %s: %w", dst, err)
+	}
+	info, err := os.Stat(src)
+	if err != nil {
+		return fmt.Errorf("stat source asset %s: %w", src, err)
+	}
+	mode := info.Mode().Perm()
+	if mode == 0 {
+		mode = 0o644
+	}
+	if err := os.WriteFile(dst, data, mode); err != nil {
+		return fmt.Errorf("write destination asset %s: %w", dst, err)
+	}
+	return nil
+}
+
+func mergeMissingYAMLKeys(srcData, dstData []byte) ([]byte, bool, error) {
+	var src map[string]any
+	if err := yaml.Unmarshal(srcData, &src); err != nil {
+		return nil, false, err
+	}
+	var dst map[string]any
+	if err := yaml.Unmarshal(dstData, &dst); err != nil {
+		return nil, false, err
+	}
+	if src == nil {
+		src = map[string]any{}
+	}
+	if dst == nil {
+		dst = map[string]any{}
+	}
+
+	changed := mergeMapMissing(src, dst)
+	if !changed {
+		return dstData, false, nil
+	}
+
+	merged, err := yaml.Marshal(dst)
+	if err != nil {
+		return nil, false, err
+	}
+	return merged, true, nil
+}
+
+func mergeMapMissing(src, dst map[string]any) bool {
+	changed := false
+	for k, srcVal := range src {
+		dstVal, exists := dst[k]
+		if !exists {
+			dst[k] = srcVal
+			changed = true
+			continue
+		}
+
+		srcMap, srcOK := srcVal.(map[string]any)
+		dstMap, dstOK := dstVal.(map[string]any)
+		if srcOK && dstOK {
+			if mergeMapMissing(srcMap, dstMap) {
+				changed = true
+			}
+		}
+	}
+	return changed
 }
 
 func isRunnable(bin string) bool {
