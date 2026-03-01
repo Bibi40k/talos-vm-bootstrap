@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -19,8 +20,10 @@ import (
 
 	survey "github.com/AlecAivazis/survey/v2"
 	wizard "github.com/Bibi40k/cli-wizard-core"
+	sshutil "github.com/Bibi40k/talos-docker-bootstrap/internal/ssh"
 	vmtool "github.com/Bibi40k/talos-docker-bootstrap/internal/tooling/vmbootstrap"
 	"github.com/spf13/cobra"
+	vmconfig "github.com/Bibi40k/vmware-vm-bootstrap/pkg/config"
 	"gopkg.in/yaml.v3"
 )
 
@@ -274,8 +277,14 @@ func upsertStage2(path string, edit bool, draftPath string) error {
 	cfg.VM.User = askString("VM user", cfg.VM.User)
 	cfg.VM.SSHPrivateKey = askString("VM SSH private key path", cfg.VM.SSHPrivateKey)
 	cfg.VM.KnownHostsFile = askString("Known hosts file", cfg.VM.KnownHostsFile)
-	cfg.VM.KnownHostsMode = askKnownHostsMode("Known hosts mode", cfg.VM.KnownHostsMode)
-	cfg.VM.SSHHostFingerprint = askString("SSH host fingerprint (SHA256:...)", cfg.VM.SSHHostFingerprint)
+	cfg.VM.KnownHostsMode = normalizeKnownHostsModeOrDefault(cfg.VM.KnownHostsMode)
+	if strings.TrimSpace(cfg.VM.SSHHostFingerprint) == "" {
+		cfg.VM.SSHHostFingerprint = detectSSHHostFingerprint(cfg)
+	}
+	if askBool("Customize SSH trust settings (advanced)", false) {
+		cfg.VM.KnownHostsMode = askKnownHostsMode("Known hosts mode", cfg.VM.KnownHostsMode)
+		cfg.VM.SSHHostFingerprint = askString("SSH host fingerprint (SHA256:...)", cfg.VM.SSHHostFingerprint)
+	}
 
 	cfg.Hardening.Enabled = askBool("Apply OS security hardening", cfg.Hardening.Enabled)
 	if cfg.Hardening.Enabled {
@@ -357,6 +366,21 @@ func askKnownHostsMode(msg, def string) string {
 			}
 		}
 		fmt.Printf("  Invalid mode. Options: %s\n", strings.Join(options, ", "))
+	}
+}
+
+func normalizeKnownHostsModeOrDefault(mode string) string {
+	switch strings.ToLower(strings.TrimSpace(mode)) {
+	case "", "strict":
+		return "strict"
+	case "prompt":
+		return "prompt"
+	case "accept-new", "accept_new":
+		return "accept-new"
+	case "auto-refresh", "auto_refresh":
+		return "auto-refresh"
+	default:
+		return "strict"
 	}
 }
 
@@ -706,6 +730,64 @@ func loadVMBootstrapConfig(path string) (vmBootstrapFile, error) {
 		return vmBootstrapFile{}, fmt.Errorf("parse %s: %w", path, err)
 	}
 	return vm, nil
+}
+
+func detectSSHHostFingerprint(cfg stage2File) string {
+	if fp := latestBootstrapResultFingerprint(); fp != "" {
+		return fp
+	}
+	host := strings.TrimSpace(cfg.VM.Host)
+	if host == "" {
+		return ""
+	}
+	port := cfg.VM.Port
+	if port <= 0 {
+		port = 22
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	fp, err := sshutil.ScanHostKeyFingerprint(ctx, host, port)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(fp)
+}
+
+func latestBootstrapResultFingerprint() string {
+	patterns := []string{
+		filepath.Join("tmp", "bootstrap-result*.yaml"),
+		filepath.Join("tmp", "bootstrap-result*.yml"),
+		filepath.Join("tmp", "bootstrap-result*.json"),
+	}
+	candidates := make([]string, 0, 6)
+	for _, p := range patterns {
+		matches, err := filepath.Glob(p)
+		if err != nil {
+			continue
+		}
+		candidates = append(candidates, matches...)
+	}
+	if len(candidates) == 0 {
+		return ""
+	}
+	sort.Slice(candidates, func(i, j int) bool {
+		ii, errI := os.Stat(candidates[i])
+		jj, errJ := os.Stat(candidates[j])
+		if errI != nil || errJ != nil {
+			return candidates[i] > candidates[j]
+		}
+		return ii.ModTime().After(jj.ModTime())
+	})
+	for _, p := range candidates {
+		res, err := vmconfig.LoadBootstrapResult(p)
+		if err != nil {
+			continue
+		}
+		if fp := strings.TrimSpace(res.SSHHostFingerprint); fp != "" {
+			return fp
+		}
+	}
+	return ""
 }
 
 func cleanupStage2Draft(targetPath string) error {
