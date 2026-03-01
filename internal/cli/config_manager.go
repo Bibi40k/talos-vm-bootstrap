@@ -82,6 +82,10 @@ type configManagerOptions struct {
 	UpdateNotify     bool
 }
 
+func menuLabel(tag, text string) string {
+	return wizard.FormatMenuLabel(tag, text, 17)
+}
+
 var stdinReader = bufio.NewReader(os.Stdin)
 var ansiEscapeRE = regexp.MustCompile(`\x1b\[[0-9;?]*[ -/]*[@-~]`)
 var caretEscapeRE = regexp.MustCompile(`\^\[\[[0-9;?]*[ -/]*[@-~]`)
@@ -151,15 +155,9 @@ func runConfigManager(opts configManagerOptions) error {
 		options := []string{}
 		actions := map[string]func() error{}
 
-		if stage2Exists {
-			label := fmt.Sprintf("[talos-bootstrap] Edit %s", filepath.Base(opts.Stage2Path))
-			options = append(options, label)
-			actions[label] = func() error { return upsertStage2(opts.Stage2Path, true, "") }
-		} else {
-			label := fmt.Sprintf("[+talos-bootstrap] Create %s", filepath.Base(opts.Stage2Path))
-			options = append(options, label)
-			actions[label] = func() error { return upsertStage2(opts.Stage2Path, false, "") }
-		}
+		stage2Label := menuLabel("talos-bootstrap", fmt.Sprintf("Manage %s", filepath.Base(opts.Stage2Path)))
+		options = append(options, stage2Label)
+		actions[stage2Label] = func() error { return upsertStage2(opts.Stage2Path, stage2Exists, "") }
 
 		drafts := listStage2Drafts(opts.Stage2Path)
 		for _, d := range drafts {
@@ -179,7 +177,7 @@ func runConfigManager(opts configManagerOptions) error {
 			}
 		}
 
-		vmLabel := "[vm-bootstrap] Open vmbootstrap config manager"
+		vmLabel := menuLabel("vm-bootstrap", "Open vmbootstrap config manager")
 		options = append(options, vmLabel)
 		actions[vmLabel] = func() error { return launchVMBootstrapManager(resolvedBin) }
 
