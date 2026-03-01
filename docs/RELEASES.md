@@ -8,6 +8,14 @@ Highlights:
 Notes:
 - TBD
 
+## v0.2.1 (2026-03-01)
+
+Highlights:
+- Bumped `vmware-vm-bootstrap` dependency from `v0.2.2` to `v0.2.3`.
+
+Notes:
+- Pulls VM config editor UX improvement that offers filename rename when `vm.name` changes.
+
 ## v0.2.0 (2026-03-01)
 
 Highlights:
