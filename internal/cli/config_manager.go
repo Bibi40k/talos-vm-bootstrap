@@ -18,6 +18,7 @@ import (
 	"unicode"
 
 	survey "github.com/AlecAivazis/survey/v2"
+	wizard "github.com/Bibi40k/cli-wizard-core"
 	vmtool "github.com/Bibi40k/talos-vm-bootstrap/internal/tooling/vmbootstrap"
 	"github.com/chzyer/readline"
 	"github.com/spf13/cobra"
@@ -234,9 +235,22 @@ func deriveVMBootstrapWorkDir(bin string) string {
 func upsertStage2(path string, edit bool, draftPath string) error {
 	cfg := stage2File{}
 	toolVersions := loadToolVersionMetadata("configs/tool-versions.yaml")
+	session := wizard.NewSession(
+		path,
+		draftPath,
+		&cfg,
+		nil,
+		loadStage2DraftYAML,
+		startStage2YAMLDraftHandler,
+		cleanupStage2Draft,
+	)
 	if draftPath != "" {
-		if err := loadYAML(draftPath, &cfg); err != nil {
+		loaded, err := session.LoadDraft()
+		if err != nil {
 			return fmt.Errorf("load draft %s: %w", draftPath, err)
+		}
+		if !loaded {
+			return fmt.Errorf("load draft %s: no data", draftPath)
 		}
 		fmt.Printf("\n\033[33m⚠ Resuming draft:\033[0m %s\n", filepath.Base(draftPath))
 	} else if edit {
@@ -253,14 +267,8 @@ func upsertStage2(path string, edit bool, draftPath string) error {
 
 	fmt.Printf("\n%s: %s\n", map[bool]string{true: "Edit", false: "Create"}[edit], filepath.Base(path))
 	fmt.Println(strings.Repeat("─", 40))
-	stopInterruptHandler := startStage2DraftInterruptHandler(path, func() ([]byte, bool) {
-		data, err := yaml.Marshal(cfg)
-		if err != nil {
-			return nil, false
-		}
-		return data, true
-	})
-	defer stopInterruptHandler()
+	session.Start()
+	defer session.Stop()
 
 	cfg.VM.Host = askString("VM host", cfg.VM.Host)
 	cfg.VM.Port = askInt("VM SSH port", cfg.VM.Port)
@@ -306,7 +314,7 @@ func upsertStage2(path string, edit bool, draftPath string) error {
 	if err := saveYAML(path, cfg); err != nil {
 		return err
 	}
-	_ = cleanupStage2Draft(path)
+	_ = session.Finalize()
 	fmt.Printf("  \033[32m✓ Saved:\033[0m %s\n\n", path)
 	return nil
 }
@@ -756,16 +764,48 @@ func listStage2Drafts(targetPath string) []string {
 	return matches
 }
 
-func startStage2DraftInterruptHandler(targetPath string, dataFn func() ([]byte, bool)) func() {
+func loadStage2DraftYAML(draftPath string, out any) (bool, error) {
+	draftPath = strings.TrimSpace(draftPath)
+	if draftPath == "" {
+		return false, nil
+	}
+	cfg, ok := out.(*stage2File)
+	if !ok || cfg == nil {
+		return false, fmt.Errorf("invalid draft target type")
+	}
+	if err := loadYAML(draftPath, cfg); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func startStage2YAMLDraftHandler(targetPath, draftPath string, state any, isEmpty func() bool) func() {
+	return startStage2DraftInterruptHandler(targetPath, draftPath, func() ([]byte, bool) {
+		cfg, ok := state.(*stage2File)
+		if !ok || cfg == nil {
+			return nil, false
+		}
+		if isEmpty != nil && isEmpty() {
+			return nil, false
+		}
+		data, err := yaml.Marshal(cfg)
+		if err != nil {
+			return nil, false
+		}
+		return data, true
+	})
+}
+
+func startStage2DraftInterruptHandler(targetPath, draftPath string, dataFn func() ([]byte, bool)) func() {
 	localSigCh := make(chan os.Signal, 1)
 	signal.Notify(localSigCh, os.Interrupt)
 	go func() {
 		<-localSigCh
 		data, ok := dataFn()
 		if ok {
-			if draftPath, err := writeStage2Draft(targetPath, data); err == nil {
+			if dp, err := writeStage2Draft(targetPath, draftPath, data); err == nil {
 				fmt.Printf("\n\033[33m⚠ Interrupted\033[0m\n")
-				fmt.Printf("  Draft saved: %s\n", draftPath)
+				fmt.Printf("  Draft saved: %s\n", dp)
 			}
 		}
 		fmt.Println("Cancelled.")
@@ -777,11 +817,13 @@ func startStage2DraftInterruptHandler(targetPath string, dataFn func() ([]byte, 
 	}
 }
 
-func writeStage2Draft(targetPath string, data []byte) (string, error) {
+func writeStage2Draft(targetPath, draftPath string, data []byte) (string, error) {
 	if err := os.MkdirAll("tmp", 0o700); err != nil {
 		return "", err
 	}
-	draftPath := stage2DraftPath(targetPath)
+	if strings.TrimSpace(draftPath) == "" {
+		draftPath = stage2DraftPath(targetPath)
+	}
 	if err := os.WriteFile(draftPath, data, 0o600); err != nil {
 		return "", err
 	}

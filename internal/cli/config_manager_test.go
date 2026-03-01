@@ -132,7 +132,7 @@ func TestDraftHelpers(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(base), 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
-	gotDraft, err := writeStage2Draft(base, []byte("vm: {}\n"))
+	gotDraft, err := writeStage2Draft(base, "", []byte("vm: {}\n"))
 	if err != nil {
 		t.Fatalf("writeStage2Draft failed: %v", err)
 	}
