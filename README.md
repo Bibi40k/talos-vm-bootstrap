@@ -55,6 +55,16 @@ talos-docker-bootstrap kubeconfig-export --config configs/talos-bootstrap.yaml -
 talos-docker-bootstrap provision-and-bootstrap --config configs/talos-bootstrap.yaml --bootstrap-result bootstrap-result.yaml [--vm-config configs/vm.example.yaml]
 ```
 
+## Config Files
+
+- `configs/talos-bootstrap.yaml`: main runtime config for Docker/Talos bootstrap on the target VM.
+- `configs/talos-bootstrap.example.yaml`: template for creating `talos-bootstrap.yaml`.
+- `configs/vcenter.sops.yaml`: vCenter credentials/defaults used by delegated `vmbootstrap` VM deploy flow.
+- `configs/vm.*.sops.yaml`: VM definitions consumed by delegated `vmbootstrap` commands.
+- `configs/vm.example.yaml`: template VM config synced from `vmware-vm-bootstrap`.
+- `configs/defaults.yaml`: local defaults for this repo's bootstrap behavior.
+- `configs/tool-versions.yaml`: pinned tool/version metadata used by automation scripts.
+
 ## Quality Gates
 
 - `go test ./...`
