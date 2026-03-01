@@ -6,7 +6,6 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/Bibi40k/cli-wizard-core v0.1.2
 	github.com/Bibi40k/vmware-vm-bootstrap v0.2.2
-	github.com/chzyer/readline v1.5.1
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/crypto v0.48.0
 	gopkg.in/yaml.v3 v3.0.1

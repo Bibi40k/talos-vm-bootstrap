@@ -20,7 +20,6 @@ import (
 	survey "github.com/AlecAivazis/survey/v2"
 	wizard "github.com/Bibi40k/cli-wizard-core"
 	vmtool "github.com/Bibi40k/talos-docker-bootstrap/internal/tooling/vmbootstrap"
-	"github.com/chzyer/readline"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -530,29 +529,6 @@ func readLineClean(prompt string) string {
 }
 
 func readLineEditable(prompt string) string {
-	rl, err := readline.NewEx(&readline.Config{Prompt: prompt})
-	if err == nil {
-		cleanup := func() {
-			_ = rl.Close()
-			// Keep bufio reader in sync after readline consumed stdin bytes.
-			stdinReader.Reset(os.Stdin)
-		}
-		line, err := rl.Readline()
-		if err == nil {
-			cleanup()
-			return line
-		}
-		if errors.Is(err, readline.ErrInterrupt) {
-			// Important: restore terminal state before triggering interrupt handler,
-			// because the handler may call os.Exit(0), which skips defers.
-			cleanup()
-			if p, findErr := os.FindProcess(os.Getpid()); findErr == nil {
-				_ = p.Signal(os.Interrupt)
-			}
-			return ""
-		}
-		cleanup()
-	}
 	fmt.Print(prompt)
 	raw, _ := stdinReader.ReadString('\n')
 	return raw
