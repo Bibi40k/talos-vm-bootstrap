@@ -22,8 +22,8 @@ import (
 	wizard "github.com/Bibi40k/cli-wizard-core"
 	sshutil "github.com/Bibi40k/talos-docker-bootstrap/internal/ssh"
 	vmtool "github.com/Bibi40k/talos-docker-bootstrap/internal/tooling/vmbootstrap"
-	"github.com/spf13/cobra"
 	vmconfig "github.com/Bibi40k/vmware-vm-bootstrap/pkg/config"
+	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
 
