@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/ssh"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/ssh"
 	vmconfig "github.com/Bibi40k/vmware-vm-bootstrap/pkg/config"
 )
 

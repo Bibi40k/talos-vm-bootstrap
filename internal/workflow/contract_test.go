@@ -3,7 +3,7 @@ package workflow
 import (
 	"testing"
 
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/config"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/config"
 )
 
 func TestBootstrapResultValidateOK(t *testing.T) {

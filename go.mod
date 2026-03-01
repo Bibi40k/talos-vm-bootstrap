@@ -1,4 +1,4 @@
-module github.com/Bibi40k/talos-vm-bootstrap
+module github.com/Bibi40k/talos-docker-bootstrap
 
 go 1.26.0
 

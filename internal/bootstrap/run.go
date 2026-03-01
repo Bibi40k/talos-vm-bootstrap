@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/config"
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/ssh"
-	"github.com/Bibi40k/talos-vm-bootstrap/pkg/model"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/config"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/ssh"
+	"github.com/Bibi40k/talos-docker-bootstrap/pkg/model"
 )
 
 type Options struct {

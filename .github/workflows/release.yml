@@ -51,7 +51,7 @@ jobs:
               if [ "$GOOS" = "windows" ]; then
                 ext=".exe"
               fi
-              CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build -o dist/talos-vm-bootstrap-${GOOS}-${GOARCH}${ext} ./cmd/talos-vm-bootstrap
+              CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build -o dist/talos-docker-bootstrap-${GOOS}-${GOARCH}${ext} ./cmd/talos-docker-bootstrap
             done
           done
           (cd dist && sha256sum * > sha256sums.txt)

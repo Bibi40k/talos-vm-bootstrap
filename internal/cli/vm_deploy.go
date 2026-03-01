@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	vmtool "github.com/Bibi40k/talos-vm-bootstrap/internal/tooling/vmbootstrap"
+	vmtool "github.com/Bibi40k/talos-docker-bootstrap/internal/tooling/vmbootstrap"
 	"github.com/spf13/cobra"
 )
 

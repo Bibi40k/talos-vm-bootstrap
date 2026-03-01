@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	vmtool "github.com/Bibi40k/talos-vm-bootstrap/internal/tooling/vmbootstrap"
+	vmtool "github.com/Bibi40k/talos-docker-bootstrap/internal/tooling/vmbootstrap"
 )
 
 func warnPinnedAssetDrift() {

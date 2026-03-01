@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/config"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/config"
 )
 
 func runOSHardening(ctx context.Context, logger *slog.Logger, cfg config.Config) error {
@@ -47,7 +47,7 @@ if [ "${#MISSING[@]}" -gt 0 ]; then
 fi
 
 install -d -m 0755 /etc/ssh/sshd_config.d
-SSH_DROPIN=/etc/ssh/sshd_config.d/99-talos-vm-bootstrap.conf
+SSH_DROPIN=/etc/ssh/sshd_config.d/99-talos-docker-bootstrap.conf
 TMP_SSH="$(mktemp)"
 cat > "$TMP_SSH" <<'SSHCFG'
 PermitRootLogin no
@@ -62,7 +62,7 @@ if [ ! -f "$SSH_DROPIN" ] || ! cmp -s "$TMP_SSH" "$SSH_DROPIN"; then
 fi
 rm -f "$TMP_SSH"
 
-SYSCTL_FILE=/etc/sysctl.d/99-talos-vm-bootstrap.conf
+SYSCTL_FILE=/etc/sysctl.d/99-talos-docker-bootstrap.conf
 TMP_SYSCTL="$(mktemp)"
 cat > "$TMP_SYSCTL" <<'SYSCTL'
 net.ipv4.conf.all.rp_filter=1

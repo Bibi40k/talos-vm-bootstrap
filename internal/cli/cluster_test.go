@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/config"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/config"
 )
 
 func TestExplainClusterOpError(t *testing.T) {

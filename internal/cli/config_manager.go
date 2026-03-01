@@ -19,7 +19,7 @@ import (
 
 	survey "github.com/AlecAivazis/survey/v2"
 	wizard "github.com/Bibi40k/cli-wizard-core"
-	vmtool "github.com/Bibi40k/talos-vm-bootstrap/internal/tooling/vmbootstrap"
+	vmtool "github.com/Bibi40k/talos-docker-bootstrap/internal/tooling/vmbootstrap"
 	"github.com/chzyer/readline"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -140,7 +140,7 @@ func runConfigManager(opts configManagerOptions) error {
 	}
 
 	fmt.Println()
-	fmt.Println("\033[1mtalos-vm-bootstrap — Config Manager\033[0m")
+	fmt.Println("\033[1mtalos-docker-bootstrap — Config Manager\033[0m")
 	fmt.Println("──────────────────────────────────────────────────")
 
 	for {

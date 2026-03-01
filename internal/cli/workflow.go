@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/config"
-	vmtool "github.com/Bibi40k/talos-vm-bootstrap/internal/tooling/vmbootstrap"
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/workflow"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/config"
+	vmtool "github.com/Bibi40k/talos-docker-bootstrap/internal/tooling/vmbootstrap"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/workflow"
 	"github.com/spf13/cobra"
 )
 

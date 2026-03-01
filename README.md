@@ -1,11 +1,11 @@
-# talos-vm-bootstrap
+# talos-docker-bootstrap
 
-![CI](https://github.com/Bibi40k/talos-vm-bootstrap/actions/workflows/ci.yml/badge.svg)
-![Coverage Core](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Bibi40k/talos-vm-bootstrap/master/docs/coverage/coverage-core.json)
-![Coverage All](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Bibi40k/talos-vm-bootstrap/master/docs/coverage/coverage-all.json)
-[![Go Report Card](https://goreportcard.com/badge/github.com/bibi40k/talos-vm-bootstrap)](https://goreportcard.com/report/github.com/bibi40k/talos-vm-bootstrap)
-![Go Version](https://img.shields.io/github/go-mod/go-version/Bibi40k/talos-vm-bootstrap)
-![Release](https://img.shields.io/github/v/release/Bibi40k/talos-vm-bootstrap)
+![CI](https://github.com/Bibi40k/talos-docker-bootstrap/actions/workflows/ci.yml/badge.svg)
+![Coverage Core](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Bibi40k/talos-docker-bootstrap/master/docs/coverage/coverage-core.json)
+![Coverage All](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Bibi40k/talos-docker-bootstrap/master/docs/coverage/coverage-all.json)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bibi40k/talos-docker-bootstrap)](https://goreportcard.com/report/github.com/bibi40k/talos-docker-bootstrap)
+![Go Version](https://img.shields.io/github/go-mod/go-version/Bibi40k/talos-docker-bootstrap)
+![Release](https://img.shields.io/github/v/release/Bibi40k/talos-docker-bootstrap)
 
 Enterprise-grade post-bootstrap for Ubuntu dev VMs.
 
@@ -47,12 +47,12 @@ Best practice for automation is to pass the fingerprint produced by `vmbootstrap
 ## CLI
 
 ```bash
-talos-vm-bootstrap vm-deploy
-talos-vm-bootstrap bootstrap --config configs/talos-bootstrap.yaml [--dry-run] [--json]
-talos-vm-bootstrap cluster-status --config configs/talos-bootstrap.yaml
-talos-vm-bootstrap mount-check --config configs/talos-bootstrap.yaml
-talos-vm-bootstrap kubeconfig-export --config configs/talos-bootstrap.yaml --out build/devvm/kubeconfig
-talos-vm-bootstrap provision-and-bootstrap --config configs/talos-bootstrap.yaml --bootstrap-result bootstrap-result.yaml [--vm-config configs/vm.example.yaml]
+talos-docker-bootstrap vm-deploy
+talos-docker-bootstrap bootstrap --config configs/talos-bootstrap.yaml [--dry-run] [--json]
+talos-docker-bootstrap cluster-status --config configs/talos-bootstrap.yaml
+talos-docker-bootstrap mount-check --config configs/talos-bootstrap.yaml
+talos-docker-bootstrap kubeconfig-export --config configs/talos-bootstrap.yaml --out build/devvm/kubeconfig
+talos-docker-bootstrap provision-and-bootstrap --config configs/talos-bootstrap.yaml --bootstrap-result bootstrap-result.yaml [--vm-config configs/vm.example.yaml]
 ```
 
 ## Quality Gates

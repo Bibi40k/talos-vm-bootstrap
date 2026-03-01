@@ -16,7 +16,7 @@ var (
 
 func newRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:           "talos-vm-bootstrap",
+		Use:           "talos-docker-bootstrap",
 		Short:         "Talos bootstrap for Ubuntu dev VM (Docker + Talos in Docker)",
 		SilenceUsage:  true,
 		SilenceErrors: true,

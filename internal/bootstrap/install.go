@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/config"
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/ssh"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/config"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/ssh"
 )
 
 var sshRunScriptFn = ssh.RunScript

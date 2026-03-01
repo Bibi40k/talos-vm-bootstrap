@@ -51,7 +51,7 @@ GO_LOCAL_OK := $(shell [ -n "$(GO_LOCAL_VERSION)" ] && [ "$$(printf '%s\n%s\n' "
 
 # Default target
 help:
-	@printf "\n$(BOLD)talos-vm-bootstrap$(RESET)\n"
+	@printf "\n$(BOLD)talos-docker-bootstrap$(RESET)\n"
 	@printf "$(CYAN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(RESET)\n"
 	@printf "\n$(BOLD)  Development$(RESET)\n"
 	@printf "    $(GREEN)make build$(RESET)			Compile check - verify all packages compile\n"
@@ -92,10 +92,10 @@ build: check-go
 	@printf "$(GREEN)✓ All packages compile OK$(RESET)\n"
 
 build-cli: check-go
-	@printf "$(CYAN)Building talos-vm-bootstrap...$(RESET)\n"
+	@printf "$(CYAN)Building talos-docker-bootstrap...$(RESET)\n"
 	@mkdir -p bin
-	@go build -o bin/talos-vm-bootstrap ./cmd/talos-vm-bootstrap
-	@printf "$(GREEN)✓ Built: bin/talos-vm-bootstrap$(RESET)\n"
+	@go build -o bin/talos-docker-bootstrap ./cmd/talos-docker-bootstrap
+	@printf "$(GREEN)✓ Built: bin/talos-docker-bootstrap$(RESET)\n"
 
 test: check-go
 	@printf "$(CYAN)Running tests...$(RESET)\n"
@@ -188,7 +188,7 @@ vet: check-go
 
 clean:
 	@printf "$(CYAN)Cleaning build artifacts...$(RESET)\n"
-	@rm -f tmp/coverage.out tmp/coverage.html tmp/coverage.all.out tmp/coverage.all.html bin/talos-vm-bootstrap
+	@rm -f tmp/coverage.out tmp/coverage.html tmp/coverage.all.out tmp/coverage.all.html bin/talos-docker-bootstrap
 	@go clean -testcache
 	@printf "$(GREEN)✓ Clean complete$(RESET)\n"
 
@@ -226,15 +226,15 @@ vmbootstrap-sync-assets: check-go
 	GOPROXY="$(VMBOOTSTRAP_GOPROXY)" go run ./tools/vmbootstrapctl sync-assets --repo-root "$(CURDIR)" $$FORCE_FLAG
 
 install: check-go
-	@printf "$(CYAN)Installing talos-vm-bootstrap CLI...$(RESET)\n"
-	@go install ./cmd/talos-vm-bootstrap
-	@printf "$(GREEN)✓ Installed! Run: talos-vm-bootstrap$(RESET)\n"
+	@printf "$(CYAN)Installing talos-docker-bootstrap CLI...$(RESET)\n"
+	@go install ./cmd/talos-docker-bootstrap
+	@printf "$(GREEN)✓ Installed! Run: talos-docker-bootstrap$(RESET)\n"
 
 talos-bootstrap-dry: build-cli
 	@$(MAKE) talos-bootstrap DRY=1
 
 config: build-cli
-	@bin/talos-vm-bootstrap config \
+	@bin/talos-docker-bootstrap config \
 		--config "$(CONFIG)" \
 		--vmbootstrap-bin "$(VMBOOTSTRAP_BIN)" \
 		--vmbootstrap-repo "$(VMBOOTSTRAP_REPO)" \
@@ -242,7 +242,7 @@ config: build-cli
 		--vmbootstrap-update-notify="$(VMBOOTSTRAP_UPDATE_NOTIFY)"
 
 vm-deploy: build-cli
-	@bin/talos-vm-bootstrap vm-deploy \
+	@bin/talos-docker-bootstrap vm-deploy \
 		--vmbootstrap-bin "$(VMBOOTSTRAP_BIN)" \
 		--vmbootstrap-repo "$(VMBOOTSTRAP_REPO)" \
 		--vmbootstrap-auto-build="$(VMBOOTSTRAP_AUTO_BUILD)" \
@@ -255,7 +255,7 @@ talos-bootstrap: build-cli
 	@go run ./tools/buildctl require-config --path "$(CONFIG)"
 	@DRY_FLAG=""; \
 	if [ "$(DRY)" = "1" ]; then DRY_FLAG="--dry-run"; fi; \
-	bin/talos-vm-bootstrap bootstrap --config "$(CONFIG)" $$DRY_FLAG
+	bin/talos-docker-bootstrap bootstrap --config "$(CONFIG)" $$DRY_FLAG
 
 run-dry: talos-bootstrap-dry
 
@@ -265,7 +265,7 @@ run-workflow: build-cli
 	if [ -n "$(VM_CONFIG)" ]; then VM_CONFIG_FLAG="--vm-config $(VM_CONFIG)"; fi; \
 	BOOTSTRAP_FLAG=""; \
 	if [ -n "$(BOOTSTRAP_RESULT)" ]; then BOOTSTRAP_FLAG="--bootstrap-result $(BOOTSTRAP_RESULT)"; fi; \
-	bin/talos-vm-bootstrap provision-and-bootstrap --config "$(CONFIG)" $$VM_CONFIG_FLAG $$BOOTSTRAP_FLAG \
+	bin/talos-docker-bootstrap provision-and-bootstrap --config "$(CONFIG)" $$VM_CONFIG_FLAG $$BOOTSTRAP_FLAG \
 		--vmbootstrap-bin "$(VMBOOTSTRAP_BIN)" \
 		--vmbootstrap-repo "$(VMBOOTSTRAP_REPO)" \
 		--vmbootstrap-auto-build="$(VMBOOTSTRAP_AUTO_BUILD)" \
@@ -273,13 +273,13 @@ run-workflow: build-cli
 
 cluster-status: build-cli
 	@go run ./tools/buildctl require-config --path "$(CONFIG)"
-	@bin/talos-vm-bootstrap cluster-status --config "$(CONFIG)"
+	@bin/talos-docker-bootstrap cluster-status --config "$(CONFIG)"
 
 mount-check: build-cli
 	@go run ./tools/buildctl require-config --path "$(CONFIG)"
-	@bin/talos-vm-bootstrap mount-check --config "$(CONFIG)"
+	@bin/talos-docker-bootstrap mount-check --config "$(CONFIG)"
 
 kubeconfig-export: build-cli
 	@go run ./tools/buildctl require-config --path "$(CONFIG)"
 	@go run ./tools/buildctl require-out --out "$(OUT)"
-	@bin/talos-vm-bootstrap kubeconfig-export --config "$(CONFIG)" --out "$(OUT)"
+	@bin/talos-docker-bootstrap kubeconfig-export --config "$(CONFIG)" --out "$(OUT)"

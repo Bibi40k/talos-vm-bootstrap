@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install all required tools for talos-vm-bootstrap
+# Install all required tools for talos-docker-bootstrap
 # Supports: Ubuntu/Debian, CentOS/RHEL/Fedora, macOS
 
 set -euo pipefail
@@ -60,7 +60,7 @@ OS=$(detect_os)
 ARCH=$(detect_arch)
 SUDO=$(need_sudo)
 
-printf "\n${BOLD}talos-vm-bootstrap — install-requirements${RESET}\n"
+printf "\n${BOLD}talos-docker-bootstrap — install-requirements${RESET}\n"
 printf "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
 printf "  OS:   $OS\n"
 printf "  Arch: $ARCH\n"

@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/bootstrap"
-	"github.com/Bibi40k/talos-vm-bootstrap/internal/config"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/bootstrap"
+	"github.com/Bibi40k/talos-docker-bootstrap/internal/config"
 	vmconfig "github.com/Bibi40k/vmware-vm-bootstrap/pkg/config"
 )
 
