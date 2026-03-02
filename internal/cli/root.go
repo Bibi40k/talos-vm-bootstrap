@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	wizard "github.com/Bibi40k/cli-wizard-core"
 	"github.com/spf13/cobra"
 )
 
@@ -43,20 +44,7 @@ func newRootCmd() *cobra.Command {
 func Execute() error {
 	cmd := newRootCmd()
 	if err := cmd.Execute(); err != nil {
-		const (
-			red    = "\033[31m"
-			yellow = "\033[33m"
-			cyan   = "\033[36m"
-			reset  = "\033[0m"
-		)
-		if ue, ok := err.(*userError); ok {
-			fmt.Fprintf(os.Stderr, "%sError:%s %s\n", red, reset, ue.Error())
-			if hint := ue.Hint(); hint != "" {
-				fmt.Fprintf(os.Stderr, "%sHint:%s %s%s%s\n", yellow, reset, cyan, hint, reset)
-			}
-		} else {
-			fmt.Fprintf(os.Stderr, "%sError:%s %v\n", red, reset, err)
-		}
+		fmt.Fprintln(os.Stderr, wizard.FormatCLIError(err))
 		return err
 	}
 	return nil
