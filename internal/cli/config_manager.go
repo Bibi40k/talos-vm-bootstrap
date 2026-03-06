@@ -199,6 +199,9 @@ func runConfigManager(opts configManagerOptions) error {
 		}
 		if fn := actions[choice]; fn != nil {
 			if err := fn(); err != nil {
+				if wizard.IsInterrupted(err) {
+					return nil
+				}
 				return err
 			}
 		}
@@ -214,6 +217,10 @@ func launchVMBootstrapManager(bin string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && exitErr.ExitCode() == 130 {
+			return wizard.ErrInterrupted
+		}
 		return fmt.Errorf("run %s config manager: %w", bin, err)
 	}
 	return nil

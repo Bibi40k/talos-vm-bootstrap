@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	wizard "github.com/Bibi40k/cli-wizard-core"
 	"github.com/Bibi40k/talos-docker-bootstrap/internal/config"
 	vmtool "github.com/Bibi40k/talos-docker-bootstrap/internal/tooling/vmbootstrap"
 	"github.com/Bibi40k/talos-docker-bootstrap/internal/workflow"
@@ -191,7 +192,7 @@ var (
 	selectorOutputRE       = regexp.MustCompile(`(?im)Select VM config to bootstrap`)
 )
 
-var errVMBootstrapCancelled = errors.New("vmbootstrap cancelled")
+var errVMBootstrapCancelled = wizard.ErrInterrupted
 
 func runVMBootstrapAndCaptureResult(bin, repo string, autoBuild, notify bool) (string, error) {
 	if notify {
@@ -223,6 +224,10 @@ func runVMBootstrapAndCaptureResult(bin, repo string, autoBuild, notify bool) (s
 	run.Stderr = os.Stderr
 
 	if err := run.Run(); err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && exitErr.ExitCode() == 130 {
+			return "", errVMBootstrapCancelled
+		}
 		return "", fmt.Errorf("run vmbootstrap deployment: %w", err)
 	}
 
