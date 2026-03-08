@@ -4,8 +4,8 @@ go 1.26.0
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
-	github.com/Bibi40k/cli-wizard-core v0.1.6-0.20260306091628-262b0bb9193a
-	github.com/Bibi40k/vmware-vm-bootstrap v0.2.4
+	github.com/Bibi40k/cli-wizard-core v0.2.0
+	github.com/Bibi40k/vmware-vm-bootstrap v0.3.0
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/crypto v0.48.0
 	gopkg.in/yaml.v3 v3.0.1
