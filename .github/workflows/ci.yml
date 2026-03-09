@@ -9,7 +9,7 @@ jobs:
   ci:
     uses: infrakit-io/repo-standards-kit/.github/workflows/go-ci.yml@v1
     permissions:
-      contents: read
+      contents: write
 
   core-coverage:
     runs-on: ubuntu-latest
